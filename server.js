@@ -121,7 +121,7 @@ app.post('/payment', async (req, res) => {
     };
     // appid|app_trans_id|appuser|amount|apptime|embeddata|item
     const data = config.app_id + "|" + order.app_trans_id + "|" + order.app_user + "|" + order.amount + "|" + order.app_time + "|" + order.embed_data + "|" + order.item;
-    order.mac = CryptoJS.HmacSHA256(data, config.key1).toString();
+    order.mac = CryptoJS.HmacSHA256(data, config.key1).toString(CryptoJS.enc.Hex);
 
     try {
         const result = await axios.post(config.endpoint, null, { params: order })
