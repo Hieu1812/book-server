@@ -111,11 +111,11 @@ app.post('/payment', async (req, res) => {
     const order = {
         app_id: config.app_id,
         app_trans_id: `${moment().format('YYMMDD')}_${transID}`,
-        app_user: "user_name",
+        app_user: user_name,
         app_time: Date.now(),
-        item: JSON.stringify([{ item: "BookStore", qty: 1, amount: total_price }]),
+        item: JSON.stringify(items),
         embed_data: JSON.stringify(embed_data),
-        amount: 10000,
+        amount: total_price,
         description: `BookStore - ZaloPay payment for the order #${transID}`,
         bank_code: "",
     };
@@ -126,6 +126,8 @@ app.post('/payment', async (req, res) => {
     try {
         const result = await axios.post(config.endpoint, null, { params: order })
         console.log(result.data);
+        console.log(req.body);
+        console.log(order);
         res.status(200).json({
             data: result.data,
             app_trans_id: order.app_trans_id
