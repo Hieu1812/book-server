@@ -109,7 +109,7 @@ app.post('/payment', async (req, res) => {
 
     const transID = Math.floor(Math.random() * 1000000);
     const order = {
-        app_id: config.app_id,
+        app_id: process.env.app_id,
         app_trans_id: `${moment().format('YYMMDD')}_${transID}`,
         app_user: user_name,
         app_time: Date.now(),
@@ -120,11 +120,11 @@ app.post('/payment', async (req, res) => {
         bank_code: "",
     };
     // appid|app_trans_id|appuser|amount|apptime|embeddata|item
-    const data = config.app_id + "|" + order.app_trans_id + "|" + order.app_user + "|" + order.amount + "|" + order.app_time + "|" + order.embed_data + "|" + order.item;
-    order.mac = CryptoJS.HmacSHA256(data, config.key1).toString();
+    const data = process.env.app_id + "|" + order.app_trans_id + "|" + order.app_user + "|" + order.amount + "|" + order.app_time + "|" + order.embed_data + "|" + order.item;
+    order.mac = CryptoJS.HmacSHA256(data, process.env.key1).toString();
 
     try {
-        const result = await axios.post(config.endpoint, null, { params: order })
+        const result = await axios.post(process.env.endpoint, null, { params: order })
         console.log(result.data);
         res.status(200).json({
             data: result.data,
@@ -138,12 +138,12 @@ app.post('/payment', async (req, res) => {
 app.post("/order-status/:app_trans_id", async (req, res) => {
     const app_trans_id = req.params.app_trans_id;
     let postData = {
-        app_id: config.app_id,
+        app_id: process.env.app_id,
         app_trans_id: app_trans_id, // Input your app_trans_id
     }
 
-    let data = postData.app_id + "|" + postData.app_trans_id + "|" + config.key1; // appid|app_trans_id|key1
-    postData.mac = CryptoJS.HmacSHA256(data, config.key1).toString();
+    let data = postData.app_id + "|" + postData.app_trans_id + "|" + process.env.key1; // appid|app_trans_id|key1
+    postData.mac = CryptoJS.HmacSHA256(data, process.env.key1).toString();
 
     let postConfig = {
         method: 'post',
