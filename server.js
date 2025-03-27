@@ -35,8 +35,8 @@ pool.connect((err, connection) => {
     }
 });
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// app.use(express.json());
+// app.use(express.urlencoded({ extended: true }));
 
 const config = {
     app_id: "2553",
@@ -111,17 +111,17 @@ app.post('/payment', async (req, res) => {
     const order = {
         app_id: config.app_id,
         app_trans_id: `${moment().format('YYMMDD')}_${transID}`,
-        app_user: user_name,
+        app_user: "user_name",
         app_time: Date.now(),
-        item: JSON.stringify(items),
+        item: JSON.stringify([{ item: "BookStore", qty: 1, amount: total_price }]),
         embed_data: JSON.stringify(embed_data),
-        amount: total_price,
+        amount: 10000,
         description: `BookStore - ZaloPay payment for the order #${transID}`,
         bank_code: "",
     };
     // appid|app_trans_id|appuser|amount|apptime|embeddata|item
     const data = config.app_id + "|" + order.app_trans_id + "|" + order.app_user + "|" + order.amount + "|" + order.app_time + "|" + order.embed_data + "|" + order.item;
-    order.mac = CryptoJS.HmacSHA256(data, config.key1).toString(CryptoJS.enc.Hex);
+    order.mac = CryptoJS.HmacSHA256(data, config.key1).toString();
 
     try {
         const result = await axios.post(config.endpoint, null, { params: order })
