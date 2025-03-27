@@ -39,10 +39,10 @@ pool.connect((err, connection) => {
 // app.use(express.urlencoded({ extended: true }));
 
 const config = {
-    app_id: "2553",
-    key1: "PcY4iZIKFCIdgZvA6ueMcMHHUbRLYjPL",
-    key2: "kLtgPl8HHhfvMuDHPwKfgfsY4Ydm9eIz",
-    endpoint: "https://sb-openapi.zalopay.vn/v2/create"
+    app_id:process.env.app_id,
+    key1:process.env.key1,
+    key2:process.env.key2,
+    endpoint:process.env.endpoint
 };
 
 // api
@@ -126,8 +126,6 @@ app.post('/payment', async (req, res) => {
     try {
         const result = await axios.post(config.endpoint, null, { params: order })
         console.log(result.data);
-        console.log(req.body);
-        console.log(order);
         res.status(200).json({
             data: result.data,
             app_trans_id: order.app_trans_id
