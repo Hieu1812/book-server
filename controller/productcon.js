@@ -13,9 +13,8 @@ app.use(express.json({ limit: '250mb' }));
 app.use(express.urlencoded({ limit: '250mb', extended: true }));
 
 // Ensure the uploads directory exists
-const tmpDir = '/tmp';
-if (!fs.existsSync(tmpDir)) {
-    fs.mkdirSync(tmpDir);
+if (!fs.existsSync('uploads')) {
+    fs.mkdirSync('uploads');
 }
 
 const upload = multer({
@@ -109,8 +108,7 @@ const productcon = {
             }
         }
     ],
-
-
+    
     getProducts: async (req, res) => {
         try {
             const sql = `SELECT id_book, book_name, id_genre, author, publisher, yopublication, price, discount, stock, encode(image_data, 'base64') AS image_data, description, is_active FROM books;`;
@@ -122,7 +120,17 @@ const productcon = {
             res.status(500).json({ error: 'Internal Server Error' });
         }
     },
+    getProductsIfExist: async (req, res) => {
+        try {
+            const sql = `SELECT id_book, book_name, id_genre, author, publisher, yopublication, price, discount, stock, encode(image_data, 'base64') AS image_data, description, is_active FROM books where stock > 0;`;
+            const data = await pool.query(sql);
+            res.status(200).json(data.rows);
 
+        } catch (err) {
+            console.error(err);
+            res.status(500).json({ error: 'Internal Server Error' });
+        }
+    },
     getProductbyID: async (req, res) => {
         const { id_book } = req.query;
         try {
@@ -137,7 +145,7 @@ const productcon = {
     },
 
     getProductByGenre: async (req, res) => {
-        const { id_genre } = req.query;  // Use req.query instead of req.body
+        const { id_genre } = req.query; 
         try {
             const sql = `
                 SELECT 
