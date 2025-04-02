@@ -13,10 +13,10 @@ app.use(express.json({ limit: '250mb' }));
 app.use(express.urlencoded({ limit: '250mb', extended: true }));
 
 // Ensure the uploads directory exists
-if (!fs.existsSync('uploads')) {
-    fs.mkdirSync('uploads');
-}
-
+const tmpDir = '/tmp';
+ if (!fs.existsSync(tmpDir)) {
+     fs.mkdirSync(tmpDir);
+ }
 const upload = multer({
     storage: multer.memoryStorage(), // Store image in memory
     limits: { fileSize: 250 * 1024 * 1024 } // Limit file size to 50MB
