@@ -17,6 +17,7 @@ const tmpDir = '/tmp';
  if (!fs.existsSync(tmpDir)) {
      fs.mkdirSync(tmpDir);
  }
+
 const upload = multer({
     storage: multer.memoryStorage(), // Store image in memory
     limits: { fileSize: 250 * 1024 * 1024 } // Limit file size to 50MB
