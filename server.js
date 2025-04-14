@@ -161,7 +161,56 @@ app.post("/order-status/:app_trans_id", async (req, res) => {
         console.log(error.message);
     }
 });
+app.get("/api/book-info", async (req, res) => {
+    const message = req.query.message;
 
+    if (!message) {
+        return res.status(400).json({ success: false, error: "Thiếu message" });
+    }
+
+    const keywordMatch = message.match(/['"]([^'"]+)['"]/);
+    const keyword = keywordMatch ? keywordMatch[1].toLowerCase() : null;
+
+    let dbInfo = "";
+
+    if (keyword) {
+        try {
+            const result = await pool.query(
+                `
+        SELECT 
+          book_name, author, publisher, price, discount, stock, description
+        FROM 
+          books
+        WHERE 
+          LOWER(book_name) LIKE LOWER($1) AND is_active = true
+        `,
+                [`%${keyword}%`]
+            );
+
+            if (result.rows.length > 0) {
+                dbInfo = result.rows.map((b) => {
+                    const discounted = b.discount ? `${b.discount}%` : "0%";
+                    return `**${b.book_name}**  
+                        - Tác giả: *${b.author}*  
+                        - Nhà xuất bản: *${b.publisher}*  
+                        - Giá gốc: ${b.price} VNĐ  
+                        - Giảm giá: ${discounted}  
+                        - Còn trong kho: ${b.stock}  
+                        - Mô tả: ${b.description?.slice(0, 200)}...`;
+                }).join("\n\n");
+            } else {
+                dbInfo = "Không tìm thấy sách nào trong cơ sở dữ liệu phù hợp với yêu cầu.";
+            }
+
+            return res.json({ success: true, dbInfo });
+        } catch (err) {
+            console.error("DB error:", err);
+            return res.status(500).json({ success: false, error: "Lỗi truy vấn database." });
+        }
+    } else {
+        return res.json({ success: true, dbInfo: "" });
+    }
+});
 // API để tải ảnh lên
 // app.post('/upload', upload.single('image'), (req, res) => {
 //     if (!req.file) {
