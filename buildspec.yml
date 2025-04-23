@@ -1,0 +1,16 @@
+version=0.2
+phases:
+  pre_build:
+    comand: 
+    - echo "Pre-build phase"
+    - aws ecr get-login-password --region us-east-1 | docker login 
+    --username AWS --password-stdin 017820674416.dkr.ecr.us-east-1.amazonaws.com
+  build:
+    commands:
+    - echo "Build phase"
+    - docker build -t 017820674416.dkr.ecr.us-east-1.amazonaws.com/hieu2004/bookstore:latest .
+  Post_build:
+    commands:
+    - echo "Post-build phase"
+    - docker push 017820674416.dkr.ecr.us-east-1.amazonaws.com/hieu2004/bookstore:latest
+
