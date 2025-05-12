@@ -19,6 +19,7 @@ const axios = require('axios').default; // npm install axios
 const CryptoJS = require('crypto-js'); // npm install crypto-js
 const moment = require('moment'); // npm install moment
 const qs = require('qs');
+const os  = require('os'); 
 
 //routes
 app.use(express.json({ limit: '50mb' }));
@@ -44,6 +45,12 @@ const config = {
 };
 
 // api
+
+app.get('/', (req, res) => {
+    res.send(
+      `<body style='background-color:#283E5B'><h1 style='color: orange;text-align:center'>Hello AWS ${os.hostname()}</h1></body>`
+    );
+  });
 
 /////////////////////// GET
 // API lấy thông tin sách từ message người dùng
