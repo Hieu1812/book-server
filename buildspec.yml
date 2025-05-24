@@ -12,5 +12,10 @@ phases:
   post_build:
     commands:
     - echo "Post-build phase"
+    - printf '[{"name":"bookstore","imageUri":"017820674416.dkr.ecr.us-east-1.amazonaws.com/hieu2004/bookstore:latest"}]' > imagedefinitions.json
+    - cat imagedefinitions.json
     - docker push 017820674416.dkr.ecr.us-east-1.amazonaws.com/hieu2004/bookstore:latest
-
+    
+artifacts:
+  files:
+    - '**/*'
