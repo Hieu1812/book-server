@@ -21,6 +21,15 @@ const moment = require('moment'); // npm install moment
 const qs = require('qs');
 const os  = require('os'); 
 
+// Simple authentication middleware
+function authenticate(req, res, next) {
+    const authHeader = req.headers['authorization'];
+    if (!authHeader || authHeader !== `Bearer ${process.env.AUTH_TOKEN}`) {
+        return res.status(401).json({ success: false, error: 'Unauthorized' });
+    }
+    next();
+}
+
 //routes
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
@@ -54,7 +63,7 @@ app.get('/', (req, res) => {
 
 /////////////////////// GET
 // API lấy thông tin sách từ message người dùng
-app.get("/api/book-info", async (req, res) => {
+app.get("/api/book-info", authenticate, async (req, res) => {
     const message = req.query.message;
 
     if (!message) {
@@ -105,17 +114,16 @@ app.get("/api/book-info", async (req, res) => {
     }
 });
 
-app.use('/accounts', userRouter);
-app.use('/address', addressRouter);
-app.use('/order', orderRouter);
-app.use('/products', productRouter);
-app.use('/address', addressRouter);
-app.use('/review', reviewRouter);
+app.use('/accounts', authenticate, userRouter);
+app.use('/address', authenticate, addressRouter);
+app.use('/order', authenticate, orderRouter);
+app.use('/products', authenticate, productRouter);
+app.use('/review', authenticate, reviewRouter);
 
 
 
 /////////////////////// POST
-app.post('/login', async (req, res) => {
+app.post('/login', authenticate, async (req, res) => {
     const { email, password } = req.body;
     try {
         let sql = `SELECT id_account, email, encode(image_data, 'base64') AS image_data, role, full_name, phone_num, gender, birthday FROM accounts WHERE email=$1 AND password=$2;`;
@@ -132,7 +140,7 @@ app.post('/login', async (req, res) => {
     }
 });
 // admin
-app.post('/sendmail', async(req,res)=> {
+app.post('/sendmail', authenticate, async(req,res)=> {
     const { emailadd,subject, htmlcontent } = req.body;
     let transporter = nodemailer.createTransport({
         service: 'gmail',
@@ -159,7 +167,7 @@ app.post('/sendmail', async(req,res)=> {
 });
 
 // ZaloPay Payment
-app.post('/payment', async (req, res) => {
+app.post('/payment', authenticate, async (req, res) => {
     const { user_name, total_price, items } = req.body;
     const embed_data = {
         redirecturl: "https://onelink.zalopay.vn/pay-order",
@@ -193,7 +201,7 @@ app.post('/payment', async (req, res) => {
         res.status(500);
     }
 });
-app.post("/order-status/:app_trans_id", async (req, res) => {
+app.post("/order-status/:app_trans_id", authenticate, async (req, res) => {
     const app_trans_id = req.params.app_trans_id;
     let postData = {
         app_id: config.app_id,
@@ -256,7 +264,7 @@ app.post("/order-status/:app_trans_id", async (req, res) => {
 
 
 // API để gọi Gemini API
-app.post('/api/gemini', async (req, res) => {
+app.post('/api/gemini', authenticate, async (req, res) => {
     try {
         const { prompt } = req.body;
         const apiKey = process.env.GEMINI_API_KEY; // Lấy API Key từ .env
@@ -293,7 +301,7 @@ app.post('/api/gemini', async (req, res) => {
 });
 
 
-app.get('/api/gemini/check', async (req, res) => {
+app.get('/api/gemini/check', authenticate, async (req, res) => {
     try {
         const apiKey = process.env.GEMINI_API_KEY;
         
